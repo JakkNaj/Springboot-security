@@ -12,7 +12,22 @@
             background-color: #FF7276;
             color: white;
         }
-
+        #remember-me-wrapper {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: start;
+            gap: 20px;
+            width: 50%;
+            margin-bottom: 10px;
+        }
+        input#remember-me {
+            align-self: center;
+            width: 16px;
+            height: 16px
+        }
+        label[for="remember-me"]{
+            margin: 0px;
+        }
     </style>
 
 </head>
@@ -28,7 +43,10 @@
             <label for="password" class="sr-only">Password</label>
             <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="" >
         </p>
-
+        <div id="remember-me-wrapper">
+            <input type="checkbox" id="remember-me" name="remember-me" class="form-control">
+            <label for="remember-me">Remember me?</label>
+        </div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
     </form>
 </div>

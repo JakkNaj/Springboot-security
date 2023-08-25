@@ -53,7 +53,9 @@ public class ApplicationSecurityConfig {
                         .permitAll()
                         .defaultSuccessUrl("/courses", true)
                 )
-                ;
+                .rememberMe()
+                .tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(31))
+                .key("sometingverysecured");
         return http.build();
     }
 
