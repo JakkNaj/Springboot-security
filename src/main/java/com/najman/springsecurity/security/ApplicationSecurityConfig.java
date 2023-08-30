@@ -1,21 +1,17 @@
 package com.najman.springsecurity.security;
 
+import com.najman.springsecurity.auth.ApplicationUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.util.concurrent.TimeUnit;
-
 import static com.najman.springsecurity.security.ApplicationUserRole.*;
 
 @Configuration
@@ -23,10 +19,12 @@ import static com.najman.springsecurity.security.ApplicationUserRole.*;
 public class ApplicationSecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserService applicationUserService;
 
     @Autowired
-    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder) {
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
         this.passwordEncoder = passwordEncoder;
+        this.applicationUserService = applicationUserService;
     }
 
     @Bean
@@ -67,36 +65,10 @@ public class ApplicationSecurityConfig {
     }
 
     @Bean
-    protected UserDetailsService userDetailsService(){
-        UserDetails lindaUser = User.builder()
-                .username("linda")
-                .password(passwordEncoder.encode("linda"))
-                //.roles(STUDENT.name()) //ROLE_STUDENT
-                .authorities(STUDENT.getGrantedAuthorities())
-                .build();
-
-        UserDetails jakubUser = User.builder()
-                .username("kuba")
-                .password(passwordEncoder.encode("admin"))
-                //.roles(ADMIN.name()) //ROLE_ADMIN
-                .authorities(ADMIN.getGrantedAuthorities())
-                .build();
-
-        //MULTIPLE ROLES
-        UserDetails marekUser = User.builder()
-                .username("marek")
-                .password(passwordEncoder.encode("marek"))
-                //.roles(TEACHER.name(), STUDENT.name()) //ROLE_ADMIN
-                .authorities(TEACHER.getGrantedAuthorities())
-                //.authorities(ADMIN.getGrantedAuthorities())
-                .build();
-
-        return new InMemoryUserDetailsManager(
-                jakubUser,
-                lindaUser,
-                marekUser
-        );
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(applicationUserService);
+        return provider;
     }
-
-
 }
