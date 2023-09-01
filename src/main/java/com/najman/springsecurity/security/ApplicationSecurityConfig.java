@@ -1,6 +1,7 @@
 package com.najman.springsecurity.security;
 
 import com.najman.springsecurity.auth.ApplicationUserService;
+import com.najman.springsecurity.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -33,6 +35,8 @@ public class ApplicationSecurityConfig {
                 //cookie will be inaccessible to the client side script
                 //.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .csrf(csrf -> csrf.disable()) //using postman during the course
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .addFilterBefore(new JwtUsernameAndPasswordAuthenticationFilter())
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(HttpMethod.GET,"/", "index.html", "/css/*", "/js/*")
                             .permitAll()
@@ -47,7 +51,8 @@ public class ApplicationSecurityConfig {
                             .hasAnyRole(ADMIN.name(), TEACHER.name())*/
                         .anyRequest().authenticated()
                 )
-                .formLogin(formLogin -> formLogin
+                //not needed, when using jwt authentication
+                /*.formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .permitAll()
                         .defaultSuccessUrl("/courses", true)
@@ -60,7 +65,7 @@ public class ApplicationSecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "remember-me")
                         .logoutSuccessUrl("/login")
-                );
+                )*/;
         return http.build();
     }
 
